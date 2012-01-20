@@ -1,0 +1,49 @@
+NAME
+    Image::CornerDetect - An implementation of the Xiaochen He corner
+    detection algorithm.
+
+SYNOPSIS
+      use Image::CornerDetect;
+      my $detector = Image::CornerDetect->new();
+      my @corners = $detector->process($filename);
+
+DESCRIPTION
+    Perform corner detection on an input image, returning a list of corner
+    points.
+
+    Converted from the Matlab at
+    http://www.mathworks.com/matlabcentral/fileexchange/7652-a-corner-detect
+    or-based-on-global-and-local-curvature-properties
+
+USAGE
+      use Image::CornerDetect;
+      my $detector = Image::CornerDetect->new();
+      my @corners = $detector->process($filename);
+
+BUGS
+    You tell me.
+
+AUTHOR
+        Sasha Kovar
+        CPAN ID: ABEND
+        sasha-cpan@arcocene.org
+
+COPYRIGHT
+    This program licensed under the BSD license.
+
+    The full text of the license can be found in the LICENSE file included
+    with this module.
+
+SEE ALSO
+    Image::EdgeDetect
+
+  my $detector = Image::CornerDetect->new(\%args)
+    Create a new corner detector, passing in parameters to override the
+    defaults if desired. Arguments are:
+
+      write_debug_image (default off)
+
+  $detector->process($filename)
+    Perform corner detection on the input image, returning a list of corner
+    points. ([x1, y1], [x2, y2],...)
+
