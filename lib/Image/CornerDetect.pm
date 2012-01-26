@@ -63,7 +63,7 @@ use POSIX qw(ceil floor);
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.9.1';
+    $VERSION     = '0.9.2';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -113,38 +113,28 @@ sub new {
 }
 
 
-=head2 $detector->process($filename)
+=head2 $detector->process($in)
 
-Perform corner detection on the input image, returning a list of
-corner points.  ([x1, y1], [x2, y2],...)
+Perform corner detection on the input image (which must be a canny
+edge detected image), returning a list of corner points.  ([x1, y1],
+[x2, y2],...).  Input may be a filename or Image::Magick object.
 
 =cut
 
 sub process {
-  my ($self, $filename) = @_;
+  my ($self, $in) = @_;
 
-  # takes as input a canny edge detected image
-  my $image = Image::Magick->new;
-  my $status = $image->Read($filename);
-  die "read: $status\n" if $status;
+  my $image = $in;
+
+  unless (ref($in) eq "Image::Magick") {
+    $image = Image::Magick->new();
+    my $status = $image->Read($in);
+    die "read: $status\n" if $status;
+  }
 
   my ($curve, $curve_start, $curve_end, $curve_mode, $curve_num) = extract_curve($image);
 
-  my @cout = get_corner($curve, $curve_start, $curve_end, $curve_mode, $curve_num,
-                        $image);
-
-  if ($self->{write_debug_image}) {
-    # mark corners
-    for my $corner (@cout) {
-      my ($x, $y) = @$corner;
-      $image->Draw(fill=>'red', primitive=>'rectangle', points=>sprintf("%d,%d %d,%d", $x-2, $y-2, $x+2, $y+2));
-    }
-
-    my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
-    $image->Write("$path/${name}-out$suffix");
-  }
-
-  return @cout;
+  return $self->get_corner($curve, $curve_start, $curve_end, $curve_mode, $curve_num, $image);
 }
 
 
