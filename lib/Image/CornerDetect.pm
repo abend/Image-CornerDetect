@@ -63,7 +63,7 @@ use POSIX qw(ceil floor);
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.9';
+    $VERSION     = '0.9.1';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -76,9 +76,20 @@ our $EPSILON = .0001;
 =head2 my $detector = Image::CornerDetect->new(\%args)
 
 Create a new corner detector, passing in parameters to override the
-defaults if desired.  Arguments are:
+defaults if desired.  Parameters are:
 
-  write_debug_image (default off)
+  sig - Denotes the standard deviation of the Gaussian filter when
+      computing curvature.  The default sig is 3.
+
+  endpoint - A flag to control whether add the end points of a curve
+      as corner. The default value is 1.
+
+  c - Denotes the minimum ratio of major axis to minor axis of an
+      ellipse, whose vertex could be detected as a corner by proposed
+      detector.  The default value is 1.5.
+
+  t_angle - Denotes the maximum obtuse angle that a corner can have
+      when it is detected as a true corner, default value is 162.
 
 =cut
 
@@ -90,7 +101,10 @@ sub new {
 
   my $self =
   {
-   write_debug_image => $args{write_debug_image},
+   sig      => $args{sig} || 3,
+   endpoint => $args{endpoint} || 1,
+   c        => $args{c} || 1.5,
+   t_angle  => $args{t_angle} || 162,
   };
 
   bless $self, $class;
@@ -135,7 +149,7 @@ sub process {
 
 
 sub get_corner {
-  my ($curve, $curve_start, $curve_end, $curve_mode, $curve_num, $bw) = @_;
+  my ($self, $curve, $curve_start, $curve_end, $curve_mode, $curve_num, $bw) = @_;
 
   my @curve = @$curve;
   my @curve_start = @$curve_start;
@@ -144,20 +158,20 @@ sub get_corner {
 
   # denotes the standard deviation of the Gaussian filter when
   # computeing curvature. The default sig is 3.
-  my $sig = 3;
+  my $sig = $self->{sig};
 
   # a flag to control whether add the end points of a curve as corner,
   # 1 means Yes and 0 means No. The default value is 1.
-  my $Endpoint = 1;
+  my $Endpoint = $self->{endpoint};
 
   # denotes the minimum ratio of major axis to minor axis of an
   # ellipse, whose vertex could be detected as a corner by proposed
   # detector.  The default value is 1.5.
-  my $C = 1.5;
+  my $C = $self->{c};
 
   # denotes the maximum obtuse angle that a corner can have when it is
   # detected as a true corner, default value is 162.
-  my $T_angle = 162;
+  my $T_angle = $self->{t_angle};
 
   my @cout;
 
