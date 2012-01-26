@@ -39,11 +39,23 @@ SEE ALSO
 
   my $detector = Image::CornerDetect->new(\%args)
     Create a new corner detector, passing in parameters to override the
-    defaults if desired. Arguments are:
+    defaults if desired. Parameters are:
 
-      write_debug_image (default off)
+      sig - Denotes the standard deviation of the Gaussian filter when
+          computing curvature.  The default sig is 3.
 
-  $detector->process($filename)
-    Perform corner detection on the input image, returning a list of corner
-    points. ([x1, y1], [x2, y2],...)
+      endpoint - A flag to control whether add the end points of a curve
+          as corner. The default value is 1.
+
+      c - Denotes the minimum ratio of major axis to minor axis of an
+          ellipse, whose vertex could be detected as a corner by proposed
+          detector.  The default value is 1.5.
+
+      t_angle - Denotes the maximum obtuse angle that a corner can have
+          when it is detected as a true corner, default value is 162.
+
+  $detector->process($in)
+    Perform corner detection on the input image (which must be a canny edge
+    detected image), returning a list of corner points. ([x1, y1], [x2,
+    y2],...). Input may be a filename or Image::Magick object.
 
